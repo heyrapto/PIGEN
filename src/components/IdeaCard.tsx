@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { useState } from 'react';
 
 interface IdeaCardProps {
   title: string;
@@ -7,13 +7,13 @@ interface IdeaCardProps {
   targetAudience: string;
   coreFeatures: string[];
   benefits: string;
-  techStack?: string[];
-  monetization?: string[];
+  techStack: string[];
+  monetization: string[];
   challenges: string[];
   nextSteps: string[];
 }
 
-const IdeaCard = memo(({
+const IdeaCard = ({
   title,
   summary,
   problem,
@@ -25,186 +25,130 @@ const IdeaCard = memo(({
   challenges,
   nextSteps,
 }: IdeaCardProps) => {
-  const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<'details' | 'challenges' | 'steps'>('details');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'features' | 'technical' | 'business'
+  >('overview');
 
-  const handleSave = () => {
-    setSaved(!saved);
-  };
-  
   return (
-    <div className="bg-gradient-to-b from-gray-800 to-gray-900 rounded-xl p-6 space-y-6 border border-white/10 shadow-lg transition-all duration-300 hover:shadow-glow">
-      {/* Header with Title and Summary */}
-      <div className="space-y-3">
-        <div className="flex items-start justify-between">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            {title}
-          </h2>
-          <div className="flex items-center space-x-2">
-            <span className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium">
-              {techStack ? 'Learning Project' : 'Startup Idea'}
-            </span>
-          </div>
-        </div>
-        <p className="text-gray-300 text-sm leading-relaxed">{summary}</p>
+    <div className="w-full rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-3 sm:px-5 py-2 sm:py-4 bg-gradient-to-r from-white/10 to-transparent border-b border-white/10">
+        <h3 className="text-base sm:text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+          {title}
+        </h3>
+        <p className="text-xs sm:text-sm text-gray-300 mt-1">{summary}</p>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex rounded-lg bg-white/5 p-1">
-        <button
-          onClick={() => setActiveTab('details')}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-            activeTab === 'details' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          Details
-        </button>
-        <button
-          onClick={() => setActiveTab('challenges')}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-            activeTab === 'challenges' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          Challenges
-        </button>
-        <button
-          onClick={() => setActiveTab('steps')}
-          className={`flex-1 py-2 text-sm font-medium rounded-md transition-colors duration-200 ${
-            activeTab === 'steps' ? 'bg-white text-black' : 'text-gray-400 hover:text-white'
-          }`}
-        >
-          Next Steps
-        </button>
-      </div>
-
-      {/* Content based on active tab */}
-      <div className="min-h-[320px]">
-        {activeTab === 'details' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fadeIn">
-            <div className="space-y-4">
-              <DetailSection title="Problem" content={problem} />
-              <DetailSection title="Target Audience" content={targetAudience} />
-              <DetailSection 
-                title="Core Features" 
-                content={
-                  <ul className="list-disc list-inside text-gray-300 space-y-1 ml-1">
-                    {coreFeatures.map((feature, index) => (
-                      <li key={index} className="text-sm">{feature}</li>
-                    ))}
-                  </ul>
-                } 
-              />
-            </div>
-
-            <div className="space-y-4">
-              <DetailSection title="Benefits" content={benefits} />
-
-              {techStack && (
-                <DetailSection 
-                  title="Tech Stack" 
-                  content={
-                    <div className="flex flex-wrap gap-2">
-                      {techStack.map((tech, index) => (
-                        <span
-                          key={index}
-                          className="px-3 py-1 bg-white/10 rounded-full text-xs text-white"
-                        >
-                          {tech}
-                        </span>
-                      ))}
-                    </div>
-                  } 
-                />
-              )}
-
-              {monetization && (
-                <DetailSection 
-                  title="Monetization" 
-                  content={
-                    <ul className="list-disc list-inside text-gray-300 space-y-1 ml-1">
-                      {monetization.map((strategy, index) => (
-                        <li key={index} className="text-sm">{strategy}</li>
-                      ))}
-                    </ul>
-                  } 
-                />
-              )}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'challenges' && (
-          <div className="space-y-4 animate-fadeIn">
-            <h3 className="text-lg font-semibold text-white mb-3">Potential Challenges</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {challenges.map((challenge, index) => (
-                <div key={index} className="p-3 rounded-lg bg-white/5 border border-white/10">
-                  <p className="text-sm text-gray-300">{challenge}</p>
-                </div>
-              ))}
-            </div>
-            <div className="bg-yellow-900/20 border border-yellow-700/30 rounded-lg p-3 mt-4">
-              <p className="text-sm text-yellow-300/80">
-                Addressing these challenges early will increase your chances of success. Consider each one carefully in your planning phase.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'steps' && (
-          <div className="space-y-4 animate-fadeIn">
-            <h3 className="text-lg font-semibold text-white mb-3">Recommended Next Steps</h3>
-            <ol className="space-y-3">
-              {nextSteps.map((step, index) => (
-                <li key={index} className="flex items-start">
-                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white text-black font-semibold text-sm mr-3 flex-shrink-0 mt-0.5">
-                    {index + 1}
-                  </div>
-                  <div className="p-3 rounded-lg bg-white/5 border border-white/10 flex-1">
-                    <p className="text-sm text-gray-300">{step}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-between items-center pt-4 border-t border-white/10">
-        <div className="text-xs text-gray-400">Generated just now</div>
-        <div className="flex space-x-3">
-          <button 
-            onClick={handleSave}
-            className={`px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2 ${
-              saved 
-                ? 'bg-green-900/20 text-green-400 border border-green-400/30' 
-                : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
+      {/* Tabs */}
+      <div className="flex border-b border-white/10 bg-black/20 overflow-x-auto scrollbar-none">
+        {[
+          { id: 'overview', label: 'Overview' },
+          { id: 'features', label: 'Features' },
+          { id: 'technical', label: 'Technical' },
+          { id: 'business', label: 'Business' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            className={`px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium min-w-max ${
+              activeTab === tab.id
+                ? 'text-white border-b-2 border-white'
+                : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
             }`}
+            onClick={() => setActiveTab(tab.id as any)}
           >
-            <svg className="w-4 h-4" fill={saved ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-            </svg>
-            <span>{saved ? 'Saved' : 'Save Idea'}</span>
+            {tab.label}
           </button>
-          <button className="px-4 py-2 rounded-lg bg-white text-black hover:bg-opacity-90 transition-all duration-200 border border-transparent active:scale-95">
-            Generate Another
-          </button>
-        </div>
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="p-3 sm:p-5">
+        {activeTab === 'overview' && (
+          <div className="space-y-3 sm:space-y-4">
+            <Section title="Problem">
+              <p className="text-xs sm:text-sm text-gray-300">{problem}</p>
+            </Section>
+            <Section title="Target Audience">
+              <p className="text-xs sm:text-sm text-gray-300">{targetAudience}</p>
+            </Section>
+            <Section title="Benefits">
+              <p className="text-xs sm:text-sm text-gray-300">{benefits}</p>
+            </Section>
+          </div>
+        )}
+
+        {activeTab === 'features' && (
+          <div className="space-y-3 sm:space-y-4">
+            <Section title="Core Features">
+              <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                {coreFeatures.map((feature, index) => (
+                  <li key={index}>{feature}</li>
+                ))}
+              </ul>
+            </Section>
+          </div>
+        )}
+
+        {activeTab === 'technical' && (
+          <div className="space-y-3 sm:space-y-4">
+            <Section title="Tech Stack">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                {techStack.map((tech, index) => (
+                  <span
+                    key={index}
+                    className="inline-block px-2 py-1 bg-white/10 rounded-md text-xs text-white"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </Section>
+            <Section title="Technical Challenges">
+              <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                {challenges.map((challenge, index) => (
+                  <li key={index}>{challenge}</li>
+                ))}
+              </ul>
+            </Section>
+          </div>
+        )}
+
+        {activeTab === 'business' && (
+          <div className="space-y-3 sm:space-y-4">
+            <Section title="Monetization">
+              <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                {monetization.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </Section>
+            <Section title="Next Steps">
+              <ul className="list-disc pl-4 sm:pl-5 space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                {nextSteps.map((step, index) => (
+                  <li key={index}>{step}</li>
+                ))}
+              </ul>
+            </Section>
+          </div>
+        )}
       </div>
     </div>
   );
-});
+};
 
-// Detail section component to keep the main component cleaner
-const DetailSection = ({ title, content }: { title: string, content: React.ReactNode | string }) => (
-  <div>
-    <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-2">{title}</h3>
-    {typeof content === 'string' ? (
-      <p className="text-gray-300 text-sm">{content}</p>
-    ) : (
-      content
-    )}
-  </div>
-);
+const Section = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => {
+  return (
+    <div>
+      <h4 className="text-xs sm:text-sm font-semibold text-white mb-1 sm:mb-2">{title}</h4>
+      {children}
+    </div>
+  );
+};
 
 export default IdeaCard; 

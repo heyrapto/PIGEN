@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback, memo } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import ChatMessage from './ChatMessage';
 import IdeaCard from './IdeaCard';
 
@@ -13,7 +12,6 @@ interface Message {
 
 // Memoized ChatInterface for performance
 const ChatInterface = () => {
-  const { remainingIdeas } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -167,9 +165,9 @@ const ChatInterface = () => {
       {/* Messages container */}
       <div 
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto px-4 py-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+        className="flex-1 overflow-y-auto px-2 sm:px-4 py-4 sm:py-6 space-y-4 sm:space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
       >
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {messages.map((message) => (
             <ChatMessage
               key={message.id}
@@ -184,14 +182,14 @@ const ChatInterface = () => {
         
         {/* Suggestions shown when chat is empty */}
         {messages.length === 1 && !isGenerating && (
-          <div className="flex flex-col items-center space-y-4 mt-8 mb-4">
-            <p className="text-gray-400 text-sm">Here are some ideas to get you started:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl mx-auto">
+          <div className="flex flex-col items-center space-y-3 sm:space-y-4 mt-6 sm:mt-8 mb-3 sm:mb-4">
+            <p className="text-gray-400 text-xs sm:text-sm">Here are some ideas to get you started:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-3 w-full max-w-2xl mx-auto">
               {suggestions.map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="text-left p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200 hover:translate-y-[-2px]"
+                  className="text-left p-2 sm:p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-200 hover:translate-y-[-2px] text-xs sm:text-sm"
                 >
                   {suggestion}
                 </button>
@@ -200,79 +198,80 @@ const ChatInterface = () => {
           </div>
         )}
       </div>
-
+      
       {/* Input form */}
-      <div className="relative border-t border-white/10 bg-black/30 backdrop-blur-sm">
-        <form onSubmit={handleSubmit} className="p-4">
-          <div className="flex space-x-2">
-            <div className="relative flex-1">
-              <input
-                ref={inputRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onFocus={() => setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-                placeholder={placeholder}
-                className="w-full bg-white/5 text-white rounded-lg pl-4 pr-10 py-3 focus:outline-none focus:ring-1 focus:ring-white/20 border border-white/10"
-                disabled={isGenerating}
-              />
-              {inputValue && (
-                <button
-                  type="button"
-                  onClick={() => setInputValue('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-              
-              {/* Quick suggestions dropdown */}
-              {showSuggestions && !isGenerating && (
-                <div className="absolute bottom-full left-0 w-full bg-gray-900 rounded-t-lg border border-white/10 border-b-0 py-2 mb-1 max-h-40 overflow-y-auto z-10">
-                  {suggestions.map((suggestion, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => handleSuggestionClick(suggestion)}
-                      className="w-full text-left px-4 py-2 hover:bg-white/10 text-sm"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button
-              type="submit"
-              className={`px-6 py-3 rounded-lg transition-all duration-300 ${
-                isGenerating
-                  ? 'bg-gray-800 text-gray-400 cursor-not-allowed opacity-70'
-                  : 'bg-white text-black hover:bg-opacity-90 active:scale-95'
-              }`}
+      <div className="border-t border-white/10 bg-white/5 backdrop-blur-sm px-2 sm:px-4 py-3 sm:py-4 rounded-b-lg">
+        <form onSubmit={handleSubmit} className="flex items-center space-x-2 sm:space-x-4">
+          <div className="relative flex-1">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
               disabled={isGenerating}
+              placeholder={placeholder}
+              className="w-full bg-white/10 text-white rounded-full px-4 py-2 sm:py-3 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm disabled:opacity-60 placeholder-gray-400 placeholder:text-xs sm:placeholder:text-sm"
+            />
+            {showSuggestions && (
+              <div className="absolute bottom-full left-0 w-full bg-gray-900 rounded-lg shadow-lg p-2 mb-2 border border-white/10 z-10">
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      setInputValue(suggestion);
+                      setShowSuggestions(false);
+                      inputRef.current?.focus();
+                    }}
+                    className="p-2 hover:bg-white/5 rounded cursor-pointer text-xs sm:text-sm"
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSuggestions(!showSuggestions)}
+            className="p-2 rounded-full hover:bg-white/10 transition-colors duration-200"
+          >
+            <svg
+              className="w-5 h-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              {isGenerating ? (
-                <div className="flex space-x-1">
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-200"></div>
-                </div>
-              ) : (
-                <span>Send</span>
-              )}
-            </button>
-          </div>
-          <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
-            <div>
-              Press <kbd className="px-1.5 py-0.5 bg-white/10 rounded text-white mx-1">Enter</kbd> to send
-            </div>
-            <div className="text-gray-400">
-              <span className="font-semibold text-white">{remainingIdeas}</span> ideas remaining today
-            </div>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M13 10V3L4 14h7v7l9-11h-7z"
+              />
+            </svg>
+          </button>
+          <button
+            type="submit"
+            disabled={isGenerating}
+            className={`p-2 sm:p-3 rounded-full ${
+              isGenerating
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:bg-white/10 cursor-pointer'
+            } transition-colors duration-200 flex-shrink-0`}
+          >
+            <svg
+              className="w-5 h-5 sm:w-6 sm:h-6 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M13 5l7 7-7 7M5 5l7 7-7 7"
+              />
+            </svg>
+          </button>
         </form>
       </div>
     </div>

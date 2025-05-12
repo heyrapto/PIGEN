@@ -68,24 +68,24 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               : 'bg-transparent h-20'
           }`}
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full">
             <div className="flex justify-between items-center h-full">
               {/* Logo section with animated gradient */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3 sm:space-x-4">
                 <div className="relative">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-white/80 via-white/20 to-white/80 rounded-full blur-sm opacity-70 animate-pulse-slow"></div>
                   <div className="relative bg-black p-1.5 rounded-full">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="sm:w-6 sm:h-6">
                       <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" strokeWidth="1.5"/>
                       <path d="M12 8V12L15 15" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                   </div>
                 </div>
                 <div className="flex flex-col">
-                  <h1 className="text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent tracking-wider">
+                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent tracking-wider">
                     PIGEN
                   </h1>
-                  <span className="text-[10px] text-gray-400 leading-none">PROJECT IDEA GENERATOR</span>
+                  <span className="text-[8px] sm:text-[10px] text-gray-400 leading-none">PROJECT IDEA GENERATOR</span>
                 </div>
               </div>
 
@@ -106,7 +106,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               )}
 
               {/* User section */}
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 {user ? (
                   <>
                     <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-white/5">
@@ -262,18 +262,18 @@ const WelcomeScreen = memo(({ onSignIn }: { onSignIn: () => void }) => {
         </button>
 
         {/* Stats bar */}
-        <div className="flex items-center justify-center w-full mx-auto mb-12">
-          <div className="flex items-center justify-center py-3 px-8 rounded-full bg-white/5 border border-white/10">
+        <div className="flex items-center justify-center w-full mx-auto mb-12 overflow-x-auto px-2 sm:px-0">
+          <div className="flex items-center justify-center py-2 sm:py-3 px-4 sm:px-8 rounded-full bg-white/5 border border-white/10">
             {[
               { value: '600+', label: 'Project Ideas' },
               { value: '24/7', label: 'Availability' },
               { value: '100%', label: 'AI Powered' }
             ].map((stat, i) => (
-              <div key={stat.label} className="flex items-center">
-                {i > 0 && <div className="h-4 w-px bg-white/10 mx-6"></div>}
-                <div className="text-center px-6">
-                  <div className="text-sm font-bold text-white">{stat.value}</div>
-                  <div className="text-xs text-gray-400">{stat.label}</div>
+              <div key={stat.label} className="flex items-center flex-shrink-0">
+                {i > 0 && <div className="h-4 w-px bg-white/10 mx-3 sm:mx-6"></div>}
+                <div className="text-center px-3 sm:px-6">
+                  <div className="text-xs sm:text-sm font-bold text-white">{stat.value}</div>
+                  <div className="text-[10px] sm:text-xs text-gray-400">{stat.label}</div>
                 </div>
               </div>
             ))}
@@ -282,8 +282,8 @@ const WelcomeScreen = memo(({ onSignIn }: { onSignIn: () => void }) => {
       </div>
 
       {/* Feature Cards Section */}
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-24">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 sm:mb-24">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
           {features.map((feature, index) => (
             <div 
               key={feature.title}
@@ -298,16 +298,18 @@ const WelcomeScreen = memo(({ onSignIn }: { onSignIn: () => void }) => {
                 }}
               />
               
-              <div className="p-6 relative">
-                <div className="flex items-center space-x-3 mb-3">
-                  <div className="p-2 rounded-lg bg-white/10 text-white group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:bg-white/20">
-                    {feature.icon}
+              <div className="p-4 sm:p-6 relative">
+                <div className="flex items-center space-x-3 mb-2 sm:mb-3">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-white/10 text-white group-hover:text-white transition-all duration-300 group-hover:scale-110 group-hover:bg-white/20">
+                    <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      {feature.icon.props.children}
+                    </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white/90 group-hover:text-white transition-colors duration-300">
+                  <h3 className="text-base sm:text-lg font-semibold text-white/90 group-hover:text-white transition-colors duration-300">
                     {feature.title}
                   </h3>
                 </div>
-                <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300 text-sm">
+                <p className="text-gray-400 group-hover:text-gray-300 transition-colors duration-300 text-xs sm:text-sm">
                   {feature.description}
                 </p>
                 
