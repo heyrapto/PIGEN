@@ -119,7 +119,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     {/* History button with hover effect */}
                     <button
                       onClick={handleHistoryToggle}
-                      className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 hover:ring-2 hover:ring-white/20 active:scale-95 relative group"
+                      className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 hover:ring-2 hover:ring-white/20 active:scale-95 relative group cursor-pointer"
                       aria-label="View history"
                     >
                       <svg
@@ -144,7 +144,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                       <div className="relative flex items-center space-x-2 px-2 py-1.5 rounded-full bg-white/5 border border-white/10">
                         <div className="relative">
                           <img
-                            src="/src/assets/avatar.svg"
+                            src="/assets/avatar.svg"
                             alt={user.name}
                             className="w-7 h-7 rounded-full ring-1 ring-white/10 object-cover"
                           />
@@ -154,7 +154,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                         
                         <button
                           onClick={handleSignOut}
-                          className="hover:bg-white/10 p-1 rounded-full"
+                          className="hover:bg-white/10 p-1 rounded-full cursor-pointer"
                         >
                           <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -166,7 +166,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                 ) : (
                   <button
                     onClick={handleSignIn}
-                    className="group relative px-5 py-2.5 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-glow active:scale-[0.98]"
+                    className="group relative px-5 py-2.5 rounded-lg overflow-hidden transition-all duration-300 hover:shadow-glow active:scale-[0.98] cursor-pointer"
                   >
                     <div className="absolute inset-0 w-full h-full transition-all duration-300 bg-gradient-to-r from-white via-gray-200 to-white opacity-80 group-hover:opacity-100"></div>
                     <div className="absolute inset-0 w-3/6 h-full transition-all duration-300 blur-sm bg-gradient-to-r from-white via-gray-200 to-white opacity-50 group-hover:opacity-70 animate-pulse-slow"></div>
@@ -254,7 +254,7 @@ const WelcomeScreen = memo(({ onSignIn }: { onSignIn: () => void }) => {
         </p>
         <button
           onClick={onSignIn}
-          className="group relative px-8 py-3 rounded-lg overflow-hidden transition-all duration-300 text-lg font-semibold hover:shadow-glow active:scale-[0.98] mb-8"
+          className="group relative px-8 py-3 rounded-lg overflow-hidden transition-all duration-300 text-lg font-semibold hover:shadow-glow active:scale-[0.98] mb-8 cursor-pointer"
         >
           <div className="absolute inset-0 w-full h-full transition-all duration-300 bg-gradient-to-r from-white via-gray-200 to-white opacity-80 group-hover:opacity-100"></div>
           <div className="absolute inset-0 w-3/6 h-full transition-all duration-300 blur-sm bg-gradient-to-r from-white via-gray-200 to-white opacity-50 group-hover:opacity-70 animate-pulse-slow"></div>
@@ -287,7 +287,7 @@ const WelcomeScreen = memo(({ onSignIn }: { onSignIn: () => void }) => {
           {features.map((feature, index) => (
             <div 
               key={feature.title}
-              className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl overflow-hidden transition-all duration-500 transform hover:-translate-y-1 hover:shadow-glow"
+              className="group relative bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl overflow-hidden transition-all duration-500 transform hover:-translate-y-1 hover:shadow-glow cursor-pointer"
             >
               {/* Background glow that changes position on hover */}
               <div className="absolute inset-0 bg-gradient-radial from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 blur-xl" 
