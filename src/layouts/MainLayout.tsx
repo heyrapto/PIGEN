@@ -144,7 +144,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                       <div className="relative flex items-center space-x-2 px-2 py-1.5 rounded-full bg-white/5 border border-white/10">
                         <div className="relative">
                           <img
-                            src="/assets/avatar.svg"
+                            src="/src/assets/avatar.svg"
                             alt={user.name}
                             className="w-7 h-7 rounded-full ring-1 ring-white/10 object-cover"
                           />
