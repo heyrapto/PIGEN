@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 interface User {
@@ -6,6 +6,7 @@ interface User {
   email: string;
   name: string;
   picture?: string;
+  apiKey?: string;
 }
 
 interface AuthContextType {
@@ -14,6 +15,11 @@ interface AuthContextType {
   signIn: () => Promise<void>;
   signOut: () => Promise<void>;
   remainingIdeas: number;
+  setApiKey: (key: string) => void;
+  showLowCreditsAlert: boolean;
+  dismissLowCreditsAlert: () => void;
+  showProfileModal: boolean;
+  setShowProfileModal: (show: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,7 +28,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [remainingIdeas, setRemainingIdeas] = useState(10);
-  console.log(setRemainingIdeas)
+  const [showLowCreditsAlert, setShowLowCreditsAlert] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  // Check for low credits
+  useEffect(() => {
+    if (user && remainingIdeas <= 3) {
+      setShowLowCreditsAlert(true);
+    }
+  }, [remainingIdeas, user]);
 
   const signIn = async () => {
     setIsLoading(true);
@@ -55,6 +69,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const setApiKey = (key: string) => {
+    if (user) {
+      setUser({
+        ...user,
+        apiKey: key
+      });
+      // In a real app, save this to the backend
+      console.log('API key updated:', key);
+      
+      // If we have a valid API key, increase credits and dismiss alert
+      if (key && key.trim().length > 0) {
+        setRemainingIdeas(prev => prev + 10);
+        setShowLowCreditsAlert(false);
+      }
+    }
+  };
+
+  const dismissLowCreditsAlert = () => {
+    setShowLowCreditsAlert(false);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -63,6 +98,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signIn,
         signOut,
         remainingIdeas,
+        setApiKey,
+        showLowCreditsAlert,
+        dismissLowCreditsAlert,
+        showProfileModal,
+        setShowProfileModal
       }}
     >
       {children}

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { avatar } from '../assets';
 
 interface ChatMessageProps {
   content: string | ReactNode;
@@ -47,7 +48,7 @@ const ChatMessage = ({ content, sender, timestamp, type = 'text' }: ChatMessageP
       </div>
       {sender === 'user' && (
         <div className="ml-1.5 sm:ml-2 h-7 w-7 sm:h-8 sm:w-8 flex-shrink-0 rounded-full bg-white/10 overflow-hidden">
-          <img src="/src/assets/avatar.svg" alt="" />
+          <img src={avatar} alt="" />
         </div>
       )}
     </div>

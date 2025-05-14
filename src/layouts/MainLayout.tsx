@@ -1,4 +1,5 @@
 import { useState, useCallback, memo, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import HistorySidebar from '../components/HistorySidebar';
@@ -6,16 +7,19 @@ import StatusIndicator from '../components/StatusIndicator';
 import BackgroundEffects from '../components/BackgroundEffects';
 import TestimonialCarousel from '../components/TestimonialCarousel';
 import Footer from '../components/Footer';
+import LowCreditsAlert from '../components/LowCreditsAlert';
+import { avatar } from '../assets';
 
 interface MainLayoutProps {
   children: ReactNode;
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const { user, signIn, signOut, remainingIdeas } = useAuth();
+  const { user, signIn, signOut, remainingIdeas, showLowCreditsAlert } = useAuth();
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const location = useLocation();
   
   const handleHistoryToggle = useCallback(() => {
     setIsHistoryOpen(prev => !prev);
@@ -48,19 +52,22 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Determine if we're on the profile page
+  const isProfilePage = location.pathname === '/profile';
+
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen w-full bg-black text-white relative overflow-hidden">
       {/* Animated background effects */}
       <BackgroundEffects />
       
-      {/* Background pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
+      {/* Background pattern - make it fixed */}
+      <div className="fixed inset-0 bg-grid-pattern opacity-20 z-0"></div>
       
-      {/* Radial gradient for dramatic effect */}
-      <div className="absolute inset-0 bg-gradient-radial from-transparent via-black to-black opacity-90"></div>
+      {/* Radial gradient for dramatic effect - make it fixed */}
+      <div className="fixed inset-0 bg-gradient-radial from-transparent via-black to-black opacity-90 z-0"></div>
       
       {/* Content */}
-      <div className="relative z-10">
+      <div className="relative z-10 min-h-screen flex flex-col">
         <nav 
           className={`fixed top-0 w-full z-50 transition-all duration-500 ease-in-out ${
             scrolled 
@@ -71,7 +78,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full">
             <div className="flex justify-between items-center h-full">
               {/* Logo section with animated gradient */}
-              <div className="flex items-center space-x-3 sm:space-x-4">
+              <Link to="/" className="flex items-center space-x-3 sm:space-x-4">
                 <div className="relative">
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-white/80 via-white/20 to-white/80 rounded-full blur-sm opacity-70 animate-pulse-slow"></div>
                   <div className="relative bg-black p-1.5 rounded-full">
@@ -87,7 +94,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                   </h1>
                   <span className="text-[8px] sm:text-[10px] text-gray-400 leading-none">PROJECT IDEA GENERATOR</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Central info panel - visible when user is logged in */}
               {user && (
@@ -141,10 +148,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                     {/* User profile with animated border */}
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-white/50 to-white/0 rounded-full opacity-0 group-hover:opacity-100 blur-sm transition-opacity duration-500"></div>
-                      <div className="relative flex items-center space-x-2 px-2 py-1.5 rounded-full bg-white/5 border border-white/10">
+                      <Link 
+                        to="/profile"
+                        className={`relative flex items-center space-x-2 px-2 py-1.5 rounded-full border border-white/10 cursor-pointer ${
+                          isProfilePage ? 'bg-white/20' : 'bg-white/5'
+                        }`}
+                      >
                         <div className="relative">
                           <img
-                            src="/src/assets/avatar.svg"
+                            src={avatar}
                             alt={user.name}
                             className="w-7 h-7 rounded-full ring-1 ring-white/10 object-cover"
                           />
@@ -153,14 +165,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
                         <span className="text-xs font-medium mr-1">{user.name.split(' ')[0]}</span>
                         
                         <button
-                          onClick={handleSignOut}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleSignOut();
+                          }}
                           className="hover:bg-white/10 p-1 rounded-full cursor-pointer"
                         >
                           <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                           </svg>
                         </button>
-                      </div>
+                      </Link>
                     </div>
                   </>
                 ) : (
@@ -178,8 +194,8 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           </div>
         </nav>
         
-        <main className="pt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="pt-20 flex-grow">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[calc(100vh-12rem)]">
             {user ? (
               <>{children}</>
             ) : (
@@ -192,6 +208,15 @@ const MainLayout = ({ children }: MainLayoutProps) => {
           isOpen={isHistoryOpen}
           onClose={() => setIsHistoryOpen(false)}
         />
+
+        {/* Low Credits Alert */}
+        {showLowCreditsAlert && (
+          <LowCreditsAlert 
+            onAddApiKey={() => {
+              // This is handled by the component itself now
+            }}
+          />
+        )}
       </div>
     </div>
   );
