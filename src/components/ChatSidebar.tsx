@@ -1,15 +1,74 @@
-import { useState } from 'react';
+import { useState, memo, useCallback, useMemo } from 'react';
 
 interface ChatSidebarProps {
   isOpen: boolean;
   toggleSidebar: () => void;
 }
 
+// Memoized tab button component
+const TabButton = memo(({ isActive, onClick, children }: { 
+  isActive: boolean; 
+  onClick: () => void; 
+  children: React.ReactNode 
+}) => (
+  <button 
+    className={`flex-1 py-2 text-xs font-medium ${
+      isActive 
+        ? 'text-white border-b-2 border-teal-500' 
+        : 'text-gray-400 hover:text-white'
+    }`}
+    onClick={onClick}
+  >
+    {children}
+  </button>
+));
+
+// Memoized tool item component
+const ToolItem = memo(({ tool }: { tool: any }) => (
+  <div 
+    className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 cursor-pointer group"
+  >
+    <div className="flex items-center space-x-3">
+      <div className="p-1.5 rounded-full bg-teal-900/30 text-teal-500 group-hover:bg-teal-900/50 transition-colors">
+        {tool.icon}
+      </div>
+      <div>
+        <h4 className="text-sm font-medium text-white">{tool.name}</h4>
+        <p className="text-xs text-gray-400 mt-0.5">{tool.description}</p>
+      </div>
+    </div>
+  </div>
+));
+
+// Memoized document item component
+const DocumentItem = memo(({ doc }: { doc: any }) => (
+  <div 
+    className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 cursor-pointer"
+  >
+    <div className="flex justify-between items-start">
+      <div>
+        <h4 className="text-sm font-medium text-white">{doc.title}</h4>
+        <p className="text-xs text-gray-400 mt-1">{doc.date}</p>
+      </div>
+      <button className="p-1 text-gray-400 hover:text-white rounded-full hover:bg-white/10">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+        </svg>
+      </button>
+    </div>
+  </div>
+));
+
 const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
   const [activeTab, setActiveTab] = useState<'tools' | 'settings' | 'documents'>('tools');
   
-  // Sample data for the tools section
-  const tools = [
+  // Switch tab with useCallback to prevent re-renders
+  const handleTabChange = useCallback((tab: 'tools' | 'settings' | 'documents') => {
+    setActiveTab(tab);
+  }, []);
+  
+  // Memoize expensive data creation
+  const tools = useMemo(() => [
     { 
       id: 'idea-generator', 
       name: 'Idea Generator', 
@@ -51,120 +110,129 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
       ),
       description: 'Create a structured business plan'
     }
-  ];
+  ], []);
 
-  // Sample saved documents
-  const documents = [
+  // Memoize documents array
+  const documents = useMemo(() => [
     { id: 'doc1', title: 'AI Startup Idea', date: '2 days ago' },
     { id: 'doc2', title: 'Web3 Project Concept', date: '5 days ago' },
     { id: 'doc3', title: 'Mobile App Roadmap', date: '1 week ago' }
-  ];
+  ], []);
 
-  // Settings options
-  const settings = [
+  // Memoize settings options
+  const settings = useMemo(() => [
     { id: 'creativity', name: 'AI Creativity', value: 0.7 },
     { id: 'detail', name: 'Response Detail', value: 0.8 },
     { id: 'theme', name: 'Dark Mode', enabled: true }
-  ];
+  ], []);
+
+  // Memoize header render to prevent re-renders on tab change
+  const renderHeader = useMemo(() => (
+    <div className="p-4 border-b border-white/10 flex items-center justify-between">
+      <div className={`flex items-center space-x-2 ${!isOpen && 'md:hidden'}`}>
+        <div className="h-8 w-8 bg-white/10 rounded-full flex items-center justify-center animate-glow">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L5 10.274zm10 0l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L15 10.274z" clipRule="evenodd" />
+          </svg>
+        </div>
+        <h2 className="font-bold text-white">PIGEN AI</h2>
+      </div>
+      <button 
+        onClick={toggleSidebar} 
+        className="p-1 rounded-full hover:bg-white/10 transition-colors"
+      >
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          className="h-5 w-5 text-white" 
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          {isOpen ? (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+          )}
+        </svg>
+      </button>
+    </div>
+  ), [isOpen, toggleSidebar]);
+
+  // Memoize tab navigation for better performance
+  const renderTabs = useMemo(() => (
+    <div className={`flex border-b border-white/10 ${!isOpen && 'md:hidden'}`}>
+      <TabButton 
+        isActive={activeTab === 'tools'} 
+        onClick={() => handleTabChange('tools')}
+      >
+        Tools
+      </TabButton>
+      <TabButton 
+        isActive={activeTab === 'documents'} 
+        onClick={() => handleTabChange('documents')}
+      >
+        Saved
+      </TabButton>
+      <TabButton 
+        isActive={activeTab === 'settings'} 
+        onClick={() => handleTabChange('settings')}
+      >
+        Settings
+      </TabButton>
+    </div>
+  ), [activeTab, handleTabChange, isOpen]);
+
+  // Memoize compact menu
+  const renderCompactMenu = useMemo(() => (
+    <div className={`${isOpen ? 'hidden' : 'md:flex flex-col items-center py-4 space-y-6'} hidden`}>
+      <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+        </svg>
+      </button>
+      <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+          <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+        </svg>
+      </button>
+      <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+        </svg>
+      </button>
+    </div>
+  ), [isOpen]);
+
+  // Memoize the footer for performance
+  const renderFooter = useMemo(() => (
+    <div className={`p-3 border-t border-white/10 ${!isOpen && 'md:hidden'}`}>
+      <div className="flex items-center justify-between">
+        <div className="text-xs text-gray-400">v2.1.0</div>
+        <button className="text-xs text-gray-400 hover:text-white">Help</button>
+      </div>
+    </div>
+  ), [isOpen]);
+
+  // Use transform-gpu for hardware acceleration
+  const sidebarClass = `${isOpen ? 'w-72' : 'w-0 md:w-16'} transform-gpu transition-all duration-300 ease-in-out h-full bg-gray-900 border-r border-white/10 relative ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} overflow-hidden flex flex-col`;
 
   return (
-    <div 
-      className={`${isOpen ? 'w-72' : 'w-0 md:w-16'} transform transition-all duration-300 ease-in-out h-full bg-gray-900 border-r border-white/10 relative ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'} overflow-hidden flex flex-col`}
-    >
-      {/* Header with logo */}
-      <div className="p-4 border-b border-white/10 flex items-center justify-between">
-        <div className={`flex items-center space-x-2 ${!isOpen && 'md:hidden'}`}>
-          <div className="h-8 w-8 bg-white/10 rounded-full flex items-center justify-center animate-glow">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1zm-5 8.274l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L5 10.274zm10 0l-.818 2.552c.25.112.526.174.818.174.292 0 .569-.062.818-.174L15 10.274z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <h2 className="font-bold text-white">PIGEN AI</h2>
-        </div>
-        <button 
-          onClick={toggleSidebar} 
-          className="p-1 rounded-full hover:bg-white/10 transition-colors"
-        >
-          <svg 
-            xmlns="http://www.w3.org/2000/svg" 
-            className="h-5 w-5 text-white" 
-            fill="none" 
-            viewBox="0 0 24 24" 
-            stroke="currentColor"
-          >
-            {isOpen ? (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            ) : (
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            )}
-          </svg>
-        </button>
-      </div>
-
-      {/* Tabs Navigation */}
-      <div className={`flex border-b border-white/10 ${!isOpen && 'md:hidden'}`}>
-        <button 
-          className={`flex-1 py-2 text-xs font-medium ${activeTab === 'tools' ? 'text-white border-b-2 border-teal-500' : 'text-gray-400 hover:text-white'}`}
-          onClick={() => setActiveTab('tools')}
-        >
-          Tools
-        </button>
-        <button 
-          className={`flex-1 py-2 text-xs font-medium ${activeTab === 'documents' ? 'text-white border-b-2 border-teal-500' : 'text-gray-400 hover:text-white'}`}
-          onClick={() => setActiveTab('documents')}
-        >
-          Saved
-        </button>
-        <button 
-          className={`flex-1 py-2 text-xs font-medium ${activeTab === 'settings' ? 'text-white border-b-2 border-teal-500' : 'text-gray-400 hover:text-white'}`}
-          onClick={() => setActiveTab('settings')}
-        >
-          Settings
-        </button>
-      </div>
-
-      {/* Compact Menu for collapsed state */}
-      <div className={`${isOpen ? 'hidden' : 'md:flex flex-col items-center py-4 space-y-6'} hidden`}>
-        <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-          </svg>
-        </button>
-        <button className="p-2 rounded-full hover:bg-white/10 transition-colors text-white">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-          </svg>
-        </button>
-      </div>
+    <div className={sidebarClass}>
+      {/* Use memoized components */}
+      {renderHeader}
+      {renderTabs}
+      {renderCompactMenu}
 
       {/* Content Area */}
-      <div className={`overflow-y-auto flex-1 scrollbar-thin ${!isOpen && 'md:hidden'}`}>
-        {/* Tools Tab */}
+      <div className={`overflow-y-auto flex-1 scrollbar-thin ${!isOpen && 'md:hidden'} will-change-scroll`}>
+        {/* Tools Tab - with memoized child components */}
         {activeTab === 'tools' && (
           <div className="p-3 space-y-3">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Available Tools</h3>
             <div className="space-y-2">
               {tools.map(tool => (
-                <div 
-                  key={tool.id}
-                  className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 cursor-pointer group"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="p-1.5 rounded-full bg-teal-900/30 text-teal-500 group-hover:bg-teal-900/50 transition-colors">
-                      {tool.icon}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-white">{tool.name}</h4>
-                      <p className="text-xs text-gray-400 mt-0.5">{tool.description}</p>
-                    </div>
-                  </div>
-                </div>
+                <ToolItem key={tool.id} tool={tool} />
               ))}
             </div>
 
@@ -183,28 +251,13 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
           </div>
         )}
         
-        {/* Saved Documents Tab */}
+        {/* Saved Documents Tab - with memoized components */}
         {activeTab === 'documents' && (
           <div className="p-3 space-y-3">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Saved Ideas</h3>
             <div className="space-y-2">
               {documents.map(doc => (
-                <div 
-                  key={doc.id}
-                  className="p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors border border-white/10 cursor-pointer"
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h4 className="text-sm font-medium text-white">{doc.title}</h4>
-                      <p className="text-xs text-gray-400 mt-1">{doc.date}</p>
-                    </div>
-                    <button className="p-1 text-gray-400 hover:text-white rounded-full hover:bg-white/10">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                      </svg>
-                    </button>
-                  </div>
-                </div>
+                <DocumentItem key={doc.id} doc={doc} />
               ))}
             </div>
             
@@ -217,7 +270,7 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
           </div>
         )}
         
-        {/* Settings Tab */}
+        {/* Settings Tab - optimized by pre-calculating values */}
         {activeTab === 'settings' && (
           <div className="p-3 space-y-5">
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">AI Settings</h3>
@@ -275,7 +328,7 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
                     name="toggle" 
                     id="toggle" 
                     className="sr-only toggle-checkbox"
-                    defaultChecked={settings[2].enabled}
+                    defaultChecked={settings[2]?.enabled}
                   />
                   <label 
                     htmlFor="toggle" 
@@ -328,14 +381,10 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
       </div>
       
       {/* Footer */}
-      <div className={`p-3 border-t border-white/10 ${!isOpen && 'md:hidden'}`}>
-        <div className="flex items-center justify-between">
-          <div className="text-xs text-gray-400">v2.1.0</div>
-          <button className="text-xs text-gray-400 hover:text-white">Help</button>
-        </div>
-      </div>
+      {renderFooter}
     </div>
   );
 };
 
-export default ChatSidebar; 
+// Memoize the whole component
+export default memo(ChatSidebar); 

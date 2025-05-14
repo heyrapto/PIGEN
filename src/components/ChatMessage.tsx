@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import type { ReactNode } from 'react';
 import { avatar } from '../assets';
 
@@ -11,6 +12,8 @@ interface ChatMessageProps {
 const ChatMessage = ({ content, sender, timestamp, type = 'text' }: ChatMessageProps) => {
   const isUser = sender === 'user';
   const animationClass = isUser ? 'animate-slideInRight delay-100' : 'animate-slideInUp delay-200';
+  
+  const timeDisplay = timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
   
   return (
     <div
@@ -48,7 +51,7 @@ const ChatMessage = ({ content, sender, timestamp, type = 'text' }: ChatMessageP
             <p className="text-sm">{content}</p>
             <div className="flex items-center justify-between mt-2">
               <span className="text-xs opacity-70">
-                {timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                {timeDisplay}
               </span>
               
               {!isUser && (
@@ -73,7 +76,7 @@ const ChatMessage = ({ content, sender, timestamp, type = 'text' }: ChatMessageP
             {content}
             <div className="flex items-center justify-between mt-2">
               <span className="text-xs opacity-70">
-                {timestamp.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                {timeDisplay}
               </span>
               
               <div className="flex items-center space-x-2">
@@ -96,11 +99,11 @@ const ChatMessage = ({ content, sender, timestamp, type = 'text' }: ChatMessageP
       </div>
       {isUser && (
         <div className="ml-3 h-9 w-9 flex-shrink-0 rounded-full overflow-hidden border-2 border-indigo-500 shadow-md shadow-indigo-500/20">
-          <img src={avatar} alt="User avatar" className="h-full w-full object-cover" />
+          <img src={avatar} alt="User avatar" className="h-full w-full object-cover" loading="lazy" />
         </div>
       )}
     </div>
   );
 };
 
-export default ChatMessage; 
+export default memo(ChatMessage); 

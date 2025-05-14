@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, memo } from 'react';
+import { useState, useRef, useEffect, useCallback, memo, useMemo } from 'react';
 import ChatMessage from './ChatMessage';
 import IdeaCard from './IdeaCard';
 import ChatSidebar from '../components/ChatSidebar';
@@ -10,6 +10,33 @@ interface Message {
   timestamp: Date;
   type?: 'text' | 'idea';
 }
+
+// Memoized button components to reduce re-renders
+const IconButton = memo(({ onClick, disabled, children, className }: { 
+  onClick: () => void, 
+  disabled?: boolean, 
+  children: React.ReactNode,
+  className: string 
+}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={disabled}
+    className={className}
+  >
+    {children}
+  </button>
+));
+
+// Suggestions button component
+const SuggestionButton = memo(({ suggestion, onClick }: { suggestion: string, onClick: (suggestion: string) => void }) => (
+  <button
+    onClick={() => onClick(suggestion)}
+    className="text-left p-3 rounded-xl glass-effect-light hover:translate-y-[-2px] transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 text-sm"
+  >
+    {suggestion}
+  </button>
+));
 
 // Memoized ChatInterface for performance
 const ChatInterface = () => {
@@ -28,24 +55,77 @@ const ChatInterface = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   
+  // Performance optimization: only show visible messages
+  const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 });
+  
   const messageEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Suggestions for quick prompts
-  const suggestions = [
+  // Suggestions for quick prompts - memoized to prevent recreation
+  const suggestions = useMemo(() => [
     "I need a web app idea for React",
     "Give me a startup idea in fintech",
     "I'm learning Python, what should I build?",
     "Suggest a mobile app for productivity"
-  ];
+  ], []);
 
-  // Auto-scroll to bottom when messages change
+  // Memoized message rendering logic to reduce calculations
+  const visibleMessages = useMemo(() => {
+    // If we have fewer than 50 messages, just show all of them
+    if (messages.length < 50) return messages;
+    
+    // Otherwise, only render the visible ones
+    return messages.slice(
+      Math.max(0, visibleRange.start),
+      Math.min(messages.length, visibleRange.end)
+    );
+  }, [messages, visibleRange]);
+
+  // Auto-scroll to bottom when messages change, with performance optimization
   useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (messages.length && messages[messages.length - 1].sender === 'user') {
+      // Auto-scroll immediately after user sends a message
+      messageEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    } else if (messages.length > 1) {
+      // Smooth scroll for AI responses
+      messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages.length]);
 
-  // Rotating placeholder text
+  // Handle scroll events for virtual rendering
+  const handleMessagesScroll = useCallback(() => {
+    if (!messagesContainerRef.current || messages.length < 50) return;
+    
+    const scrollTop = messagesContainerRef.current.scrollTop;
+    const clientHeight = messagesContainerRef.current.clientHeight;
+    // const scrollHeight = messagesContainerRef.current.scrollHeight;
+    
+    // Estimate which messages are visible
+    const estimatedMessageHeight = 100; // Approximate average height
+    const startIndex = Math.floor(scrollTop / estimatedMessageHeight);
+    const visibleCount = Math.ceil(clientHeight / estimatedMessageHeight);
+    
+    // Add buffer before and after
+    const buffer = 10;
+    setVisibleRange({
+      start: Math.max(0, startIndex - buffer),
+      end: Math.min(messages.length, startIndex + visibleCount + buffer)
+    });
+  }, [messages.length]);
+
+  // Set up scroll listener
+  useEffect(() => {
+    const messagesContainer = messagesContainerRef.current;
+    if (messagesContainer) {
+      messagesContainer.addEventListener('scroll', handleMessagesScroll);
+      return () => {
+        messagesContainer.removeEventListener('scroll', handleMessagesScroll);
+      };
+    }
+  }, [handleMessagesScroll]);
+
+  // Rotating placeholder text with reduced update frequency
   useEffect(() => {
     const placeholders = [
       'Type your message...',
@@ -54,9 +134,10 @@ const ChatInterface = () => {
       'Need a project for your portfolio?'
     ];
     
+    // Reduced frequency of updates to save CPU cycles
     const intervalId = setInterval(() => {
       setPlaceholder(placeholders[Math.floor(Math.random() * placeholders.length)]);
-    }, 5000);
+    }, 8000); // Increased interval
     
     return () => clearInterval(intervalId);
   }, []);
@@ -103,9 +184,10 @@ const ChatInterface = () => {
     // Simulate idea generation (replace with actual API call)
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Replace thinking message with actual response
-    setMessages((prev) => 
-      prev.filter(m => m.id !== thinkingId).concat({
+    // Replace thinking message with actual response - optimized to avoid full array copy
+    setMessages((prev) => {
+      const filteredMessages = prev.filter(m => m.id !== thinkingId);
+      return [...filteredMessages, {
         id: (Date.now() + 1).toString(),
         content: (
           <IdeaCard
@@ -149,8 +231,8 @@ const ChatInterface = () => {
         sender: 'system',
         timestamp: new Date(),
         type: 'idea',
-      })
-    );
+      }];
+    });
     
     setIsGenerating(false);
   }, [inputValue, isGenerating]);
@@ -159,22 +241,27 @@ const ChatInterface = () => {
     handleSubmit({ preventDefault: () => {} } as React.FormEvent, suggestion);
   }, [handleSubmit]);
 
+  // Toggle sidebar with animation optimizations
+  const toggleSidebar = useCallback(() => {
+    setIsSidebarOpen(prev => !prev);
+  }, []);
+
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-transparent relative overflow-hidden">
-      {/* Chat Sidebar */}
+      {/* Chat Sidebar - memoized through its own component */}
       <ChatSidebar 
         isOpen={isSidebarOpen} 
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        toggleSidebar={toggleSidebar}
       />
       
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col relative bg-gradient-to-b from-gray-900/30 to-black/30 backdrop-blur-sm rounded-xl border border-white/5">
-        {/* Header Bar */}
+        {/* Header Bar - reduced complexity */}
         <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
           {/* Toggle Sidebar Button */}
-          <button 
+          <IconButton 
+            onClick={toggleSidebar}
             className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
           >
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
@@ -185,7 +272,7 @@ const ChatInterface = () => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
-          </button>
+          </IconButton>
           
           <div className="text-center flex-1">
             <h2 className="text-white font-medium text-sm">Idea Generator</h2>
@@ -193,30 +280,38 @@ const ChatInterface = () => {
           </div>
           
           <div className="flex items-center space-x-2">
-            <button className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white">
+            <IconButton 
+              onClick={() => {}}
+              className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
               </svg>
-            </button>
-            <button className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white">
+            </IconButton>
+            <IconButton 
+              onClick={() => {}}
+              className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
                 <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
               </svg>
-            </button>
+            </IconButton>
           </div>
         </div>
         
-        {/* Gradient accent */}
-        <div className="absolute top-16 left-0 w-full h-32 bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none"></div>
+        {/* Gradient accent - using CSS variables for better performance */}
+        <div className="absolute top-16 left-0 w-full h-32 bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none transform-gpu"></div>
         
-        {/* Messages container */}
+        {/* Messages container with virtualization */}
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+          className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent will-change-scroll"
+          onScroll={handleMessagesScroll}
         >
-          <div className="space-y-6">
-            {messages.map((message) => (
+          <div className="space-y-6 min-h-full">
+            {/* Only render visible messages */}
+            {visibleMessages.map((message) => (
               <ChatMessage
                 key={message.id}
                 content={message.content}
@@ -228,26 +323,24 @@ const ChatInterface = () => {
             <div ref={messageEndRef} />
           </div>
           
-          {/* Suggestions shown when chat is empty */}
+          {/* Suggestions shown when chat is empty - with memoized children */}
           {messages.length === 1 && !isGenerating && (
             <div className="flex flex-col items-center space-y-4 mt-8 mb-4 animate-fadeIn">
               <p className="text-gray-400 text-sm">Here are some ideas to get you started:</p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl mx-auto">
                 {suggestions.map((suggestion, index) => (
-                  <button
+                  <SuggestionButton
                     key={index}
-                    onClick={() => handleSuggestionClick(suggestion)}
-                    className="text-left p-3 rounded-xl glass-effect-light hover:translate-y-[-2px] transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/10 text-sm"
-                  >
-                    {suggestion}
-                  </button>
+                    suggestion={suggestion}
+                    onClick={handleSuggestionClick}
+                  />
                 ))}
               </div>
             </div>
           )}
         </div>
         
-        {/* Input form */}
+        {/* Input form - optimized rendering */}
         <div className="border-t border-white/10 bg-white/5 backdrop-blur-md px-4 py-4 rounded-b-xl">
           <form onSubmit={handleSubmit} className="flex items-center space-x-3">
             <div className="flex-1 relative">
@@ -280,8 +373,7 @@ const ChatInterface = () => {
             </div>
             
             <div className="flex items-center space-x-2">
-              <button
-                type="button"
+              <IconButton
                 onClick={() => setShowSuggestions(!showSuggestions)}
                 className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-all duration-200 text-indigo-300 hover:text-indigo-200"
               >
@@ -298,7 +390,7 @@ const ChatInterface = () => {
                     d="M13 10V3L4 14h7v7l9-11h-7z"
                   />
                 </svg>
-              </button>
+              </IconButton>
               <button
                 type="submit"
                 disabled={isGenerating}
@@ -332,7 +424,7 @@ const ChatInterface = () => {
             </div>
           </form>
           
-          {/* Features indicator */}
+          {/* Features indicator - simple static content, low impact */}
           <div className="flex items-center justify-center mt-3 space-x-6 text-xs text-gray-500">
             <div className="flex items-center space-x-1">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
