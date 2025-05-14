@@ -226,6 +226,16 @@ input:checked ~ .block {
   background-color: rgba(74, 222, 128, 0.2);
 }
 
+/* Toggle switch styling for ChatSidebar */
+.toggle-checkbox:checked + label {
+  background-color: rgba(45, 212, 191, 0.2);
+}
+
+.toggle-checkbox:checked + label .dot {
+  transform: translateX(100%);
+  background-color: #14b8a6;
+}
+
 .dot {
   transition: transform 0.3s ease-in-out;
 }
@@ -257,4 +267,61 @@ input:checked ~ .block {
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ChatSidebar range input styling */
+input[type=range] {
+  -webkit-appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #14b8a6;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+}
+
+input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #14b8a6;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+}
+
+/* Add smooth transitions for tab links in sidebar */
+.tab-transition {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Animate the sidebar content on tab changes */
+.tab-content-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.tab-content-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.tab-content-exit {
+  opacity: 1;
+}
+
+.tab-content-exit-active {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 300ms, transform 300ms;
 }
