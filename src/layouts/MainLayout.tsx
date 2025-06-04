@@ -1,5 +1,5 @@
 import { useState, useCallback, memo, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, Navigate } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import HistorySidebar from '../components/HistorySidebar';
@@ -54,6 +54,11 @@ const MainLayout = ({ children }: MainLayoutProps) => {
 
   // Determine if we're on the profile page
   const isProfilePage = location.pathname === '/profile';
+  
+  // Redirect authenticated users to /chat when on landing page
+  if (user && location.pathname === '/') {
+    return <Navigate to="/chat" replace />;
+  }
 
   return (
     <div className="min-h-screen w-full bg-black text-white relative overflow-hidden">

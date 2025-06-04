@@ -247,7 +247,7 @@ const ChatInterface = () => {
   }, []);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-transparent relative overflow-hidden">
+    <div className="flex h-full bg-transparent relative overflow-hidden">
       {/* Chat Sidebar - memoized through its own component */}
       <ChatSidebar 
         isOpen={isSidebarOpen} 
@@ -262,36 +262,46 @@ const ChatInterface = () => {
         {/* Messages container with virtualization */}
         <div 
           ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 space-y-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent will-change-scroll"
+          className="flex-1 overflow-y-auto px-4 sm:px-6 py-6 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent will-change-scroll"
           onScroll={handleMessagesScroll}
         >
-          <div className="space-y-6 min-h-full">
-            {/* Only render visible messages */}
-            {visibleMessages.map((message) => (
-              <ChatMessage
-                key={message.id}
-                content={message.content}
-                sender={message.sender}
-                timestamp={message.timestamp}
-                type={message.type}
-              />
-            ))}
-            <div ref={messageEndRef} />
-          </div>
-          
-          {/* Suggestions shown when chat is empty - with memoized children */}
-          {messages.length === 1 && !isGenerating && (
-            <div className="flex flex-col items-center space-y-4 mt-8 mb-4 animate-fadeIn">
-              <p className="text-gray-400 text-sm">Here are some ideas to get you started:</p>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl mx-auto">
-                {suggestions.map((suggestion, index) => (
-                  <SuggestionButton
-                    key={index}
-                    suggestion={suggestion}
-                    onClick={handleSuggestionClick}
-                  />
-                ))}
+          {messages.length === 1 && !isGenerating ? (
+            // Center the suggestions when it's the only content
+            <div className="h-full flex items-center justify-center">
+              <div className="flex flex-col items-center space-y-6 -mt-20">
+                <div className="animate-glow">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-75">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" strokeWidth="1.5"/>
+                    <path d="M12 8V12L15 15" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+                  </svg>
+                </div>
+                <div className="flex flex-col items-center space-y-4 animate-fadeIn">
+                  <p className="text-gray-400 text-sm">Here are some ideas to get you started:</p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-2xl">
+                    {suggestions.map((suggestion, index) => (
+                      <SuggestionButton
+                        key={index}
+                        suggestion={suggestion}
+                        onClick={handleSuggestionClick}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
+            </div>
+          ) : (
+            <div className="space-y-6 min-h-full">
+              {/* Only render visible messages */}
+              {visibleMessages.map((message) => (
+                <ChatMessage
+                  key={message.id}
+                  content={message.content}
+                  sender={message.sender}
+                  timestamp={message.timestamp}
+                  type={message.type}
+                />
+              ))}
+              <div ref={messageEndRef} />
             </div>
           )}
         </div>
