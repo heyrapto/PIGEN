@@ -256,52 +256,8 @@ const ChatInterface = () => {
       
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col relative bg-gradient-to-b from-gray-900/30 to-black/30 backdrop-blur-sm rounded-xl border border-white/5">
-        {/* Header Bar - reduced complexity */}
-        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5">
-          {/* Toggle Sidebar Button */}
-          <IconButton 
-            onClick={toggleSidebar}
-            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              fill="none" 
-              viewBox="0 0 24 24" 
-              stroke="currentColor"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </IconButton>
-          
-          <div className="text-center flex-1">
-            <h2 className="text-white font-medium text-sm">Idea Generator</h2>
-            <p className="text-gray-400 text-xs">Powered by PIGEN AI</p>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <IconButton 
-              onClick={() => {}}
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
-            </IconButton>
-            <IconButton 
-              onClick={() => {}}
-              className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-white"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z" />
-                <path fillRule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clipRule="evenodd" />
-              </svg>
-            </IconButton>
-          </div>
-        </div>
-        
         {/* Gradient accent - using CSS variables for better performance */}
-        <div className="absolute top-16 left-0 w-full h-32 bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none transform-gpu"></div>
+        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-indigo-500/10 via-purple-500/5 to-transparent pointer-events-none transform-gpu"></div>
         
         {/* Messages container with virtualization */}
         <div 
