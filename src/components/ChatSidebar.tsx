@@ -20,35 +20,35 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
 
   return (
     <aside
-      className={`fixed md:relative inset-y-0 left-0 z-30 bg-gray-900 border-r border-white/10 transition-all duration-300 ease-in-out ${
-        isOpen ? 'w-64' : 'w-16'
-      } ${!isOpen && 'md:hover:w-64'}`}
+      className={`fixed md:relative inset-y-0 left-0 z-30 transition-all duration-300 ease-in-out ${
+        isOpen ? 'w-64' : 'w-16 md:hover:w-64'
+      } group/sidebar bg-gradient-to-b from-gray-900 to-black border-r border-white/10 overflow-hidden`}
     >
       <div className="flex flex-col h-full">
         {/* Sidebar Header with Toggle */}
-        <div className="flex items-center justify-between p-3 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center min-w-0">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/10">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </div>
-            <div className={`ml-3 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'}`}>
-              <h2 className="font-semibold text-white">AI Chat</h2>
+            <div className={`ml-3 overflow-hidden transition-all duration-300 ${isOpen ? 'w-32 opacity-100' : 'w-0 opacity-0 md:group-hover/sidebar:w-32 md:group-hover/sidebar:opacity-100'}`}>
+              <h2 className="font-semibold text-white truncate">AI Chat</h2>
             </div>
           </div>
           <button
             onClick={toggleSidebar}
-            className="p-1.5 rounded-lg hover:bg-white/10 transition-colors"
+            className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors duration-200 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover/sidebar:opacity-100'}`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className={`h-5 w-5 text-white transition-transform duration-300 ${!isOpen && 'rotate-180'}`}
+              className={`h-4 w-4 text-gray-400 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
         </div>
@@ -56,42 +56,45 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
         {/* New Chat Button */}
         <button
           onClick={() => setSelectedChat(null)}
-          className="m-2 flex items-center space-x-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-white text-sm group"
+          className="mx-3 mt-3 flex items-center space-x-3 px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 border border-white/10 transition-all duration-200 group/new"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
           </svg>
-          <span className={`transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'}`}>
+          <span className={`text-sm font-medium text-white transition-all duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover/sidebar:opacity-100'} whitespace-nowrap`}>
             New Chat
           </span>
         </button>
 
         {/* Chat History */}
-        <div className="flex-1 overflow-y-auto mt-2 px-2">
-          {chatHistory.map((chat) => (
-            <button
-              key={chat.id}
-              onClick={() => setSelectedChat(chat.id)}
-              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg mb-1 text-left transition-colors group ${
-                selectedChat === chat.id
-                  ? 'bg-white/20 text-white'
-                  : 'text-gray-300 hover:bg-white/10'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" />
-              </svg>
-              <span className={`text-sm truncate transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'}`}>
-                {chat.title}
-              </span>
-            </button>
-          ))}
+        <div className="flex-1 overflow-y-auto mt-3 px-3">
+          <div className={`space-y-1 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover/sidebar:opacity-100'}`}>
+            {chatHistory.map((chat) => (
+              <button
+                key={chat.id}
+                onClick={() => setSelectedChat(chat.id)}
+                className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-left transition-colors duration-200 group/chat ${
+                  selectedChat === chat.id
+                    ? 'bg-white/10 text-white'
+                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm truncate">{chat.title}</p>
+                  <p className="text-xs text-gray-500 truncate">{chat.date}</p>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Bottom Section - Profile & Sign Out */}
         <div className="mt-auto border-t border-white/10">
-          <div className="p-2">
-            <div className="flex items-center justify-between p-2 rounded-lg hover:bg-white/10 transition-colors group">
+          <div className="p-3">
+            <div className={`flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors duration-200 group/profile ${isOpen ? 'space-x-3' : 'md:group-hover/sidebar:space-x-3'}`}>
               <Link to="/profile" className="flex items-center min-w-0 space-x-3">
                 <div className="relative flex-shrink-0">
                   <img
@@ -99,19 +102,21 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
                     alt={user?.name}
                     className="w-8 h-8 rounded-full ring-1 ring-white/20"
                   />
-                  <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-green-400 ring-1 ring-black"></span>
+                  <span className="absolute bottom-0 right-0 block h-2 w-2 rounded-full bg-emerald-400 ring-1 ring-black"></span>
                 </div>
-                <span className={`text-sm text-white truncate transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 md:group-hover:opacity-100'}`}>
+                <span className={`text-sm text-white truncate transition-all duration-300 ${isOpen ? 'opacity-100 w-32' : 'opacity-0 w-0 md:group-hover/sidebar:opacity-100 md:group-hover/sidebar:w-32'}`}>
                   {user?.name}
                 </span>
               </Link>
               <button
                 onClick={signOut}
-                className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors text-gray-400 hover:text-white ${!isOpen && 'hidden md:group-hover:block'}`}
+                className={`p-1.5 rounded-lg hover:bg-white/10 transition-colors duration-200 text-gray-400 hover:text-white ${
+                  isOpen ? 'opacity-100' : 'opacity-0 md:group-hover/sidebar:opacity-100'
+                }`}
                 title="Sign out"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
               </button>
             </div>
