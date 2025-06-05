@@ -39,7 +39,9 @@ const ChatSidebar = ({ isOpen, toggleSidebar }: ChatSidebarProps) => {
           </div>
           <button
             onClick={toggleSidebar}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors duration-200 cursor-pointer"
+            className={`p-2 rounded-lg hover:bg-white/10 transition-colors duration-200 cursor-pointer ${
+              isOpen ? 'opacity-100' : 'hidden'
+            }`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
