@@ -42,7 +42,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       // TODO: Implement Google Sign In
-      // This is a placeholder for the actual implementation
       const mockUser: User = {
         id: '1',
         email: 'user@example.com',
